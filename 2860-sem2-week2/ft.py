@@ -31,7 +31,14 @@ def recv_line(sock: socket.socket, max_len: int = MAX_FILENAME_LEN) -> bytes:
     data = bytearray()
     while True:
         # TODO: write your code here.
-        socket.recv_fds()
+        fixed_chunk = sock.recv(1)
+
+        if fixed_chunk == ord('\n'):
+            return data
+        if len(data) > max_len:
+            raise ValueError("Recieved message too long")
+        data += fixed_chunk
+
 
 ##########
 # Server #

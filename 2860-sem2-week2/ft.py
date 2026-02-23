@@ -60,6 +60,7 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
         except UnicodeDecodeError:
             # Send LINE_ERR if filename is not valid UTF-8.
             # TODO: write your code here.
+            conn.sendall(LINE_ERR)
             return
 
         # Sanitize filename (strip directory components).
@@ -67,6 +68,7 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
         if filename == '':
             # Send LINE_ERR if invalid filename.
             # TODO: write your code here.
+            conn.sendall(LINE_ERR)
             return
 
         # Prepare output path.
@@ -77,14 +79,17 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
         if os.path.exists(dest_path):
             # Send LINE_ERR if file exists.
             # TODO: write your code here.
+            conn.sendall(LINE_ERR)
             return
         else:
             # Send LINE_OK to proceed.
             # TODO: write your code here.
+            conn.sendall(LINE_OK)
 
         # Receive 8-byte unsigned integer (network byte order).
         hdr = bytearray()
         # TODO: write your code here.
+        hdr = conn.recv(8)
 
         (file_size,) = struct.unpack('!Q', hdr)
 
@@ -95,6 +100,8 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
                 while remaining > 0:
                     # Receive a chunk (up to BUFSIZE or remaining).
                     # TODO: write your code here.
+                    chunk = bytearray()
+                    chunk = conn.recv(min(BUFSIZE, remaining))
                     f.write(chunk)
                     remaining -= len(chunk)
                 f.flush()
@@ -109,7 +116,7 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
 
         # Send final LINE_OK to acknowledge successful receipt.
         # TODO: write your code here.
-
+        conn.sendall(LINE_OK)
     except Exception:
         # Swallow exceptions to keep server alive; optionally could log
         try:
@@ -129,7 +136,10 @@ def run_server(port: int, outdir: str, ipv6: bool) -> None:
     server_socket = socket.socket()
     server_socket.bind((outdir, port))
     while True:
-        data, address = server_socket.recvfrom(2048)
+        server_socket.listen()
+        client_socket, client_addr = server_socket.accept()
+        # data, address = server_socket.recvfrom(2048)
+        handle_client(client_socket, outdir)
 
 
 ##########
@@ -151,6 +161,21 @@ def run_client(server_ip: str, port: int, file_path: str, ipv6: bool) -> int:
     # Send filename, size, and file content (in chunks).
     # Wait for server responses according to protocol.
     # TODO: write your code here.
+    client_socket = socket.socket()
+    client_socket.connect(addr)
+    remaining = file_size
+    client_socket.sendall(filename.encode())
+    client_socket.sendall(file_size)
+    with open(file_path, 'r') as f:
+        while remaining > 0:
+            # Receive a chunk (up to BUFSIZE or remaining).
+            # TODO: write your code here.
+            chunk = bytearray()
+            chunk = f.read(min(BUFSIZE, remaining)).encode()
+            chunk = client_socket.sendall(chunk)
+            remaining -= len(chunk)
+
+
 
 
 ################

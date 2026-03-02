@@ -133,6 +133,8 @@ def run_server(port: int, outdir: str, ipv6: bool) -> None:
     bind_addr = '::' if ipv6 else '0.0.0.0'
     # Create server socket, bind, listen, and accept in an infinite loop.
     # TODO: write your code here.
+    print(outdir)
+    print(port)
     server_socket = socket.socket()
     server_socket.bind((outdir, port))
     while True:
@@ -165,7 +167,7 @@ def run_client(server_ip: str, port: int, file_path: str, ipv6: bool) -> int:
     client_socket.connect(addr)
     remaining = file_size
     client_socket.sendall(filename.encode())
-    client_socket.sendall(file_size)
+    client_socket.sendall(struct.pack('!Q', file_size))
     with open(file_path, 'r') as f:
         while remaining > 0:
             # Receive a chunk (up to BUFSIZE or remaining).

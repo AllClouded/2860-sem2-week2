@@ -136,7 +136,7 @@ def run_server(port: int, outdir: str, ipv6: bool) -> None:
     print(outdir)
     print(port)
     server_socket = socket.socket()
-    server_socket.bind((outdir, port))
+    server_socket.bind((bind_addr, port))
     while True:
         server_socket.listen()
         client_socket, client_addr = server_socket.accept()

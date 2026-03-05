@@ -57,6 +57,7 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
         raw_line = recv_line(conn)
         try:
             filename = raw_line.decode('utf-8')
+            print("FILENAME RECIEVED")
         except UnicodeDecodeError:
             # Send LINE_ERR if filename is not valid UTF-8.
             # TODO: write your code here.
@@ -165,8 +166,9 @@ def run_client(server_ip: str, port: int, file_path: str, ipv6: bool) -> int:
     # TODO: write your code here.
     client_socket = socket.socket()
     client_socket.connect(addr)
+    print("CONNECTED")
     remaining = file_size
-    client_socket.sendall(filename.encode())
+    client_socket.sendall((filename + '\n').encode())
     print(client_socket.recv(len(LINE_OK)))
     client_socket.sendall(struct.pack('!Q', file_size))
     with open(file_path, 'r') as f:

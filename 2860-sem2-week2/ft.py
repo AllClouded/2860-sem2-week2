@@ -32,8 +32,8 @@ def recv_line(sock: socket.socket, max_len: int = MAX_FILENAME_LEN) -> bytes:
     while True:
         # TODO: write your code here.
         fixed_chunk = sock.recv(1)
-
-        if fixed_chunk == ord('\n'):
+        print(fixed_chunk)
+        if fixed_chunk == b'\n':
             return data
         if len(data) > max_len:
             raise ValueError("Recieved message too long")
@@ -57,7 +57,6 @@ def handle_client(conn: socket.socket, outdir: str) -> None:
         raw_line = recv_line(conn)
         try:
             filename = raw_line.decode('utf-8')
-            print("FILENAME RECIEVED")
         except UnicodeDecodeError:
             # Send LINE_ERR if filename is not valid UTF-8.
             # TODO: write your code here.
@@ -166,7 +165,6 @@ def run_client(server_ip: str, port: int, file_path: str, ipv6: bool) -> int:
     # TODO: write your code here.
     client_socket = socket.socket()
     client_socket.connect(addr)
-    print("CONNECTED")
     remaining = file_size
     client_socket.sendall((filename + '\n').encode())
     print(client_socket.recv(len(LINE_OK)))

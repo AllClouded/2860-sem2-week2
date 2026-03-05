@@ -167,15 +167,16 @@ def run_client(server_ip: str, port: int, file_path: str, ipv6: bool) -> int:
     client_socket.connect(addr)
     remaining = file_size
     client_socket.sendall(filename.encode())
+    print(client_socket.recv(len(LINE_OK)))
     client_socket.sendall(struct.pack('!Q', file_size))
     with open(file_path, 'r') as f:
         while remaining > 0:
             # Receive a chunk (up to BUFSIZE or remaining).
             # TODO: write your code here.
-            chunk = bytearray()
             chunk = f.read(min(BUFSIZE, remaining)).encode()
-            chunk = client_socket.sendall(chunk)
-            remaining -= len(chunk)
+            if chunk:
+                client_socket.sendall(chunk)
+                remaining -= len(chunk)
 
 
 

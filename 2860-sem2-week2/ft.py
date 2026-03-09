@@ -167,7 +167,8 @@ def run_client(server_ip: str, port: int, file_path: str, ipv6: bool) -> int:
     client_socket.connect(addr)
     remaining = file_size
     client_socket.sendall((filename + '\n').encode())
-    print(client_socket.recv(len(LINE_OK)))
+    if recv_line(client_socket, 4) == b'ERR':
+        return 2
     client_socket.sendall(struct.pack('!Q', file_size))
     with open(file_path, 'r') as f:
         while remaining > 0:
